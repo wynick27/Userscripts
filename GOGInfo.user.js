@@ -6,15 +6,25 @@
 // @include      http://steamdb.sinaapp.com/sync
 // @include      /https?:\/\/keylol.com\/.*/
 // @grant        GM_xmlhttpRequest
+// @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_removeValue
-// @version      0.1
+// @version      0.1.5
 // @connect      gog.com
 // @icon         https://www.gog.com/favicon.ico
 // @updateURL    https://github.com/wynick27/Userscripts/raw/master/GOGInfo.user.js
 // ==/UserScript==
 
+GM_addStyle(`
+a.steam-info-link[href^="https://www.gog.com/game/"]:after {
+    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKuSURBVDhPfZP7S1NhGMffJKXhlW25dJoWGXbRLv4SRWKRFQsMibIoJQ0CxSgKr80wSzEzMMlLSaQpZhfFSjOWpm66+sWzObdz3CXnNnVOTfwPvr0bJ6SYfuBw4Dzf7/d53vfhEG+o0oyXlCnm9sFki/XbcfNKX5JJ13OCq+9OYo/xEu+oUy2HR1LN46N77VAK5tBPnOglc+giDnQEWdEea8LbI/qPL/foRbxlFfVZy2m17Bd++C5ARRbxnbig8HehJ9iJTv9ZtBA7aokVtYEmNCfoZutiJkJ5KzWfnAofTbHgJzWqCA2QLmF413LH4P7fVxTxS7Ku7c6ctgiH6rnQivvEhDJfFo3xWo63EzJywdyr9ndC6Q6QLkK5Y1nGl/6hUTJdVC224AZhURaiQ02sJoeMpFgOqg5ZMUw7Kzcvol/iyuT1XnkUZnlTJOCQTXSo3KqxkaHzxtIhqYNemAsDkQvTvG5NigVs5D3xJNLJOEqEGpCBNK5VIZhBHw3o3TL/mtetS7GIs2fSCQoCaIDiHNf6WWBHt3tdkrkWXrMuRSLWlvU34IuMK+2UTKHVvevwGSuvWZNbAr20WMzRI2ghdx/hUyKX8D7OiDq641ciG5pCpzN4rVdKJJNtNATXaECFlHF4Pn5INHx9tsmECmJGg9SKcqHplKfwH/JQLo+Oj8v0AgsCtHgczeR6Ci1xhojmA3rIySQKCYdKiRllEmNbQTB78U6QITk/xHBdLuEGC4UsMqg5e6MW1dFjJo/5L037dGcaYnW4vcE9ng43/fTIC2KRH8IiL5BFts8E7axFrh81R43NPwhjwnjrKvW7tUef7tTo74poFx8trlKD+8lyG321KBFr8GQb0/MwnFn9D7xRE8OkV0Uz78qljI2KV+jbUBXFvKiOYpJ5CQ8hfwBvrnA879HkswAAAABJRU5ErkJggg==');
+    bottom: -.15em;
+    padding-left: 4px;
+    padding-right: 2px;
+    position: relative;
+}
+`);
 
 (function () {
 
