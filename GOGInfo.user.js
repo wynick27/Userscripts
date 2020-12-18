@@ -10,7 +10,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_removeValue
-// @version      0.1.5
+// @version      0.1.8
 // @connect      gog.com
 // @icon         https://www.gog.com/favicon.ico
 // @updateURL    https://github.com/wynick27/Userscripts/raw/master/GOGInfo.user.js
@@ -18,7 +18,7 @@
 
 GM_addStyle(`
 a.steam-info-link[href^="https://www.gog.com/game/"]:after {
-    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKuSURBVDhPfZP7S1NhGMffJKXhlW25dJoWGXbRLv4SRWKRFQsMibIoJQ0CxSgKr80wSzEzMMlLSaQpZhfFSjOWpm66+sWzObdz3CXnNnVOTfwPvr0bJ6SYfuBw4Dzf7/d53vfhEG+o0oyXlCnm9sFki/XbcfNKX5JJ13OCq+9OYo/xEu+oUy2HR1LN46N77VAK5tBPnOglc+giDnQEWdEea8LbI/qPL/foRbxlFfVZy2m17Bd++C5ARRbxnbig8HehJ9iJTv9ZtBA7aokVtYEmNCfoZutiJkJ5KzWfnAofTbHgJzWqCA2QLmF413LH4P7fVxTxS7Ku7c6ctgiH6rnQivvEhDJfFo3xWo63EzJywdyr9ndC6Q6QLkK5Y1nGl/6hUTJdVC224AZhURaiQ02sJoeMpFgOqg5ZMUw7Kzcvol/iyuT1XnkUZnlTJOCQTXSo3KqxkaHzxtIhqYNemAsDkQvTvG5NigVs5D3xJNLJOEqEGpCBNK5VIZhBHw3o3TL/mtetS7GIs2fSCQoCaIDiHNf6WWBHt3tdkrkWXrMuRSLWlvU34IuMK+2UTKHVvevwGSuvWZNbAr20WMzRI2ghdx/hUyKX8D7OiDq641ciG5pCpzN4rVdKJJNtNATXaECFlHF4Pn5INHx9tsmECmJGg9SKcqHplKfwH/JQLo+Oj8v0AgsCtHgczeR6Ci1xhojmA3rIySQKCYdKiRllEmNbQTB78U6QITk/xHBdLuEGC4UsMqg5e6MW1dFjJo/5L037dGcaYnW4vcE9ng43/fTIC2KRH8IiL5BFts8E7axFrh81R43NPwhjwnjrKvW7tUef7tTo74poFx8trlKD+8lyG321KBFr8GQb0/MwnFn9D7xRE8OkV0Uz78qljI2KV+jbUBXFvKiOYpJ5CQ8hfwBvrnA879HkswAAAABJRU5ErkJggg==');
+    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGTSURBVDhPrZLLK0RhGMb9E26RuTgNc4wZx5jBmGHIMG4zCikUC0QWZGMni9loUq5ZSJTbuOUSohC5JRuxsLFTdv6Gx3zPGQuRwvzq6/e+7zk9fec7Xwz+SXQClPgxWBJGYYobgRxegsykcVhTJmHTz8BuWOKsOvsUTXnXaLdfocN6whkDzLHDbARZiRO0JXmaFjilBbrRdUsLupRDmgEZcUE2gmztPJ2rnaUFeRq1biy6owWt5j2aAcakaUjJUxzY09boUnkTbuM6CtPXYdeqO6i1nqFGOWNdYdiivxyiQwpFqp+pMh7QDMjRL8Id3malbg4+eYcPviNQ/YyxuhcMlT8h6H3g7MsOfkt0AlrkfTRnHqGv+JHDYNsbAg2v6C9/QEvuOWedtmv0FNyg132HAc89Bj3quwzwp3/+7m7vc6QC6m0XtN90TNcraqDPrPYM8Ji22Xzgt1xGKqAs44guMezSpbJ6gRzSJs2AAmkRztRlOHUrHBZpVlGoCcEllk79rfnhmcCh26BzUtTrHZ1D/DvAO4D3bg4Ht2L1AAAAAElFTkSuQmCC');
     bottom: -.15em;
     padding-left: 4px;
     padding-right: 2px;
@@ -66,9 +66,9 @@ a.steam-info-link[href^="https://www.gog.com/game/"]:after {
         return data;
     }
     async function loadGOG() {
-        var page = 0;
         var exit = 0;
-        var data = [];
+        var data = {};
+        var products, product;
         document.getElementById('gog_page').innerHTML = `已拥有`;
         var owned = await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
@@ -82,6 +82,16 @@ a.steam-info-link[href^="https://www.gog.com/game/"]:after {
                 ontimeout: reject
             });
         });
+        owned = owned['owned'];
+        var totallen = owned.length;
+        while (owned.length) {
+            document.getElementById('gog_page').innerHTML = `已拥有 ${totallen - owned.length}/${totallen}`;
+            products = await getProducts(owned.splice(0, 50));
+            for (product of products) {
+                data[product['slug']] = 1;
+            }
+        }
+
         document.getElementById('gog_page').innerHTML = `愿望单`;
         var wishlist = await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
@@ -95,18 +105,10 @@ a.steam-info-link[href^="https://www.gog.com/game/"]:after {
                 ontimeout: reject
             });
         });
-        document.getElementById('gog_page').innerHTML = `游戏名`;
         wishlist = Object.keys(wishlist['wishlist']);
-        owned = owned['owned'];
-        data = {}
-        var products, product;
-        while (owned.length) {
-            products = await getProducts(owned.splice(0, 50));
-            for (product of products) {
-                data[product['slug']] = 1;
-            }
-        }
+        totallen = wishlist.length;
         while (wishlist.length) {
+            document.getElementById('gog_page').innerHTML = `愿望单 ${totallen - wishlist.length}/${totallen}`;
             products = await getProducts(wishlist.splice(0, 50));
             for (product of products) {
                 data[product['slug']] = 0;
@@ -128,12 +130,15 @@ a.steam-info-link[href^="https://www.gog.com/game/"]:after {
 
                 document.querySelectorAll('[id^=pid] a').forEach(function (a) {
                     var match = a.href.match(gogRe)
-                    if (match && data.hasOwnProperty(match[1])) {
+                    if (match) {
                         a.classList.add('steam-info-link');
-                        if (data[match[1]] == 1)
-                            a.classList.add('steam-info-own');
-                        else if (data[match[1]] == 0)
-                            a.classList.add('steam-info-wish');
+                        if (data.hasOwnProperty(match[1]))
+                        {
+                            if (data[match[1]] == 1)
+                                a.classList.add('steam-info-own');
+                            else if (data[match[1]] == 0)
+                                a.classList.add('steam-info-wish');
+                        }
                     }
                 });
             }
